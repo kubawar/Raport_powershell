@@ -15,7 +15,7 @@ $data = get-date -Format 'yyyyMMdd HH:mm:ss'
 $data1 = get-date -Format 'yyyydM_HH_mm_ss'
 $nazwapliku = $data1+"_"+$maszyna+".txt"
 cmd /r secedit /export /cfg c:\sec.cfg
-$seccfg = Get-Content C:\sec.cfg
+$seccfg = Get-Content C:\sec.cfg | Out-Null
 #$seccfg = Import-Csv C:\sec.cfg -Delimiter '=' -Header name,value
 Remove-Item C:\sec.cfg
 
@@ -130,4 +130,4 @@ if($opcja_wsus){
 
 
 $wynik | Out-File -PSPath "c:\$nazwapliku" -Force
-$wynik += "`r`nSecurity Settings:`r`n"
+Invoke-Item "c:\$nazwapliku"
