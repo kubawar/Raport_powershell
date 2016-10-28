@@ -14,6 +14,13 @@ $user = $env:USERNAME
 $data = get-date -Format 'yyyyMMdd HH:mm:ss'
 $data1 = get-date -Format 'yyyydM_HH_mm_ss'
 $nazwapliku = $data1+"_"+$maszyna+".txt"
+cmd /r secedit /export /cfg c:\sec.cfg
+$seccfg = Get-Content C:\sec.cfg
+#$seccfg = Import-Csv C:\sec.cfg -Delimiter '=' -Header name,value
+Remove-Item C:\sec.cfg
+
+
+
 
 $opcja_serwisy = $opcja_procesy = $opcja_security = $opcja_prawa = $opcja_wsus = $false
 
@@ -68,18 +75,57 @@ if($opcja_procesy){
 }
 
 if($opcja_security){
-    
     $wynik += "`r`nSecurity settings:`r`n"
+
+    $wynik += "Accounts: Administrator account status: "
+    $adminstatus = $seccfg | Select-String -Pattern "EnableAdminAccount = 0"
+    if($adminstatus -like "EnableAdminAccount = 0"){ $wynik += "PASS`r`n"}
+    else{ $wynik += "FAIL`r`n"}
+    $wynik += "Accounts: Rename Administrator account: "
+    $adminname = $seccfg | Select-String -Pattern 'NewAdministratorName = "ADATUMAdmin"'
+    if($adminname -like 'NewAdministratorName = "ADATUMAdmin"'){ $wynik += "PASS`r`n"}
+    else{ $wynik += "FAIL`r`n"}
+
+    $wynik += "Accounts: Rename Guest account: "
+    $guestname = $seccfg | Select-String -Pattern 'NewGuestName = "ADATUMGuest"'
+    if($guestname -like 'NewGuestName = "ADATUMGuest"'){ $wynik += "PASS`r`n"}
+    else{ $wynik += "FAIL`r`n"}
+
 }
 
 if($opcja_prawa){
-    
     $wynik += "`r`nUser Rights Assigment:`r`n"
+
+    $wynik += "Take ownership of files or other objects: "
+    $prawaowner = $seccfg | Select-String -Pattern 'SeTakeOwnershipPrivilege = \*S-1-5-32-544'
+    if($prawaowner -like 'SeTakeOwnershipPrivilege = *S-1-5-32-544'){ $wynik += "PASS`r`n"}
+    else{ $wynik += "FAIL`r`n"}
+    $wynik += "Back up files and direcotries: "
+    $prawaback = $seccfg | Select-String -Pattern 'SeBackupPrivilege = \*S-1-5-32-544'
+    if($prawaback -like 'SeBackupPrivilege = *S-1-5-32-544'){ $wynik += "PASS`r`n"}
+    else{ $wynik += "FAIL`r`n"}
+    $wynik += "Shut down the system: "
+    $prawashutdown = $seccfg | Select-String -Pattern 'SeRemoteShutdownPrivilege = \*S-1-5-32-544'
+    if($prawashutdown -like 'SeRemoteShutdownPrivilege = *S-1-5-32-544'){ $wynik += "PASS`r`n"}
+    else{ $wynik += "FAIL`r`n"}
 }
 
 if($opcja_wsus){
-    
     $wynik += "`r`nWSUS Settings:`r`n"
+    $wsus1 = Get-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU
+    $wynik += "Configure automatic updating - 4 Auto download and chedule install: "
+    if($wsus1.AUOptions -eq 4){ $wynik += "PASS`r`n"}
+    else{ $wynik += "FAIL`r`n"}
+    $wynik += "Scheduled Install Time: "
+    if($wsus1.ScheduledInstallTime -eq 3){ $wynik += "PASS`r`n"}
+    else{ $wynik += "FAIL`r`n"}
+    $wsus2 = Get-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\
+    $wynik += "Set the intranet update service for detecting updates: "
+    if($wsus2.WUServer -like "http://test.pl:8530"){ $wynik += "PASS`r`n"}
+    else{ $wynik += "FAIL`r`n"}
+    $wynik += "Set the intranet statistc server: "
+    if($wsus2.WUStatusServer -like "http://test.pl:8530"){ $wynik += "PASS`r`n"}
+    else{ $wynik += "FAIL`r`n"}
 }
 
 
