@@ -44,8 +44,12 @@ if($opcja -eq 'a'){
 $wynik = "";
 $wynik += "Data wykonania testu: $data`r`nWykonal: $domena\$user`r`nMaszyna: $maszyna`r`n"
 
-if($opcja_serwisy){    
-    $lista_serwisow = Get-Content -Path c:\srv.txt
+if($opcja_serwisy){
+    try{
+        $lista_serwisow = Get-Content -Path c:\srv.txt
+    }catch{
+        write-host "Brak pliku (c:\srv.txt) ze zdefiniowanymi serwisami lub nie masz do niego dostępu."
+    }
     $wynik += "`r`nSerwisy:`r`n"
     foreach($s in $lista_serwisow){
         try{
@@ -54,11 +58,15 @@ if($opcja_serwisy){
             $wynik += "Usluga $s nie istnieje`r`n"
         }
         if($serwis) {$wynik += "Usluga $s istnieje i ma status: $($serwis.Status)`r`n"}
-    }
+    }  
 }
 
 if($opcja_procesy){
-    $lista_procesow = Get-Content -Path c:\proc.txt
+    try{
+        $lista_procesow = Get-Content -Path c:\proc.txt
+    }catch{
+        write-host "Brak pliku (c:\proc.txt) ze zdefiniowanymi procesami lub nie masz do niego dostępu."
+    }
     $wynik += "`r`nProcesy:`r`n"
     foreach($p in $lista_procesow){
         try{
