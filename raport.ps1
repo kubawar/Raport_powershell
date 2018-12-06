@@ -20,7 +20,7 @@ $seccfg = Get-Content C:\sec.cfg | Out-Null
 Remove-Item C:\sec.cfg
 
 # dodany komentarz testowy
-
+# :-)
 
 $opcja_serwisy = $opcja_procesy = $opcja_security = $opcja_prawa = $opcja_wsus = $false
 
